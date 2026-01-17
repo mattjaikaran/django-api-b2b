@@ -3,16 +3,18 @@
 from django_matt import MattAPI
 
 from apps.users.controllers import register_auth_routes
+from apps.organizations.controllers import register_org_routes
 
 # Create the API instance
 api = MattAPI(
-    title="My API",
+    title="My B2B API",
     version="1.0.0",
-    description="A modern API built with django-matt",
+    description="A B2B multi-tenant API built with django-matt",
 )
 
-# Register auth routes
+# Register routes
 register_auth_routes(api)
+register_org_routes(api)
 
 
 # Health check endpoint
@@ -20,16 +22,3 @@ register_auth_routes(api)
 async def health_check(request) -> dict:
     """Health check endpoint."""
     return {"status": "healthy"}
-
-
-# Example protected endpoint
-@api.get("/protected", tags=["Example"])
-async def protected_endpoint(request) -> dict:
-    """Example protected endpoint - requires JWT auth."""
-    from django_matt.auth import jwt_required
-
-    @jwt_required
-    async def handler(request):
-        return {"message": f"Hello, {request.user.email}!"}
-
-    return await handler(request)

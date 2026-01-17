@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     # Local apps
     "apps.users",
     "apps.core",
+    "apps.organizations",
 ]
 
 MIDDLEWARE = [
@@ -117,9 +118,9 @@ AUTH_USER_MODEL = "users.User"
 # =============================================================================
 
 DJANGO_MATT = {
-    "API_TITLE": "My API",
+    "API_TITLE": "My B2B API",
     "API_VERSION": "1.0.0",
-    "API_DESCRIPTION": "A modern API built with django-matt",
+    "API_DESCRIPTION": "A B2B multi-tenant API built with django-matt",
     "DOCS_URL": "/docs",
     "REDOC_URL": "/redoc",
     "OPENAPI_URL": "/openapi.json",

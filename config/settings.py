@@ -6,7 +6,6 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 """
 
 import os
-import sys
 from datetime import timedelta
 from pathlib import Path
 

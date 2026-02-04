@@ -60,7 +60,7 @@ def login(request, data: LoginSchema) -> TokenSchema:
 
     refresh = RefreshToken.for_user(user)
     return TokenSchema(
-        access_token=str(refresh.access_token),
+        access_token=str(refresh.access_token),  # type: ignore[attr-defined]
         refresh_token=str(refresh),
         token_type="bearer",
     )

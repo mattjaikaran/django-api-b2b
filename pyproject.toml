@@ -3,9 +3,9 @@ name = "myproject"
 version = "0.1.0"
 description = "A modern Django API built with django-matt"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.14"
 dependencies = [
-    "django>=5.2",
+    "django>=6.0",
     "psycopg[binary]>=3.1.0",
     "python-dotenv>=1.0.0",
     "gunicorn>=22.0.0",
@@ -38,7 +38,8 @@ packages = ["apps", "config"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py312"
+target-version = "py314"
+exclude = ["**/migrations/*", "scripts/*"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP"]
@@ -50,7 +51,7 @@ python_files = ["test_*.py", "*_test.py"]
 asyncio_mode = "auto"
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.14"
 plugins = ["mypy_django_plugin.main"]
 ignore_missing_imports = true
 

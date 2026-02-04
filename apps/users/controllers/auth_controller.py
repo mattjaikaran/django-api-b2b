@@ -7,7 +7,7 @@ from ninja.errors import HttpError
 from ninja_jwt.authentication import JWTAuth
 from ninja_jwt.tokens import RefreshToken
 
-from .schemas import (
+from ..schemas import (
     ChangePasswordSchema,
     LoginSchema,
     RefreshTokenSchema,

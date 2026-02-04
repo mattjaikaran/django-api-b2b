@@ -2,7 +2,7 @@
 Django settings for myproject.
 
 For more information on this file, see
-https://docs.djangoproject.com/en/5.2/topics/settings/
+https://docs.djangoproject.com/en/6.0/topics/settings/
 """
 
 import os

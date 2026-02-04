@@ -4,7 +4,7 @@ A minimal Django API template built with [django-matt](https://github.com/mattja
 
 ## Features
 
-- Django 5.2+ with async support
+- Django 6.0+ with async support
 - JWT authentication out of the box
 - Pydantic schemas for request/response validation
 - OpenAPI documentation (Swagger & ReDoc)
@@ -17,7 +17,7 @@ A minimal Django API template built with [django-matt](https://github.com/mattja
 
 ### Prerequisites
 
-- Python 3.12+
+- Python 3.14+
 - [uv](https://github.com/astral-sh/uv) package manager
 - PostgreSQL (or use SQLite for development)
 

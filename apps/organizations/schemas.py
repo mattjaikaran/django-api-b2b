@@ -3,12 +3,14 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 # Organization schemas
 class OrganizationSchema(BaseModel):
     """Organization response schema."""
+
+    model_config = ConfigDict(from_attributes=True)
 
     id: UUID
     name: str
@@ -17,9 +19,6 @@ class OrganizationSchema(BaseModel):
     website: str | None = None
     plan: str
     created_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 class OrganizationCreateSchema(BaseModel):
@@ -43,15 +42,14 @@ class OrganizationUpdateSchema(BaseModel):
 class TeamSchema(BaseModel):
     """Team response schema."""
 
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     organization_id: UUID
     name: str
     slug: str
     description: str
     created_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 class TeamCreateSchema(BaseModel):
@@ -73,6 +71,8 @@ class TeamUpdateSchema(BaseModel):
 class MembershipSchema(BaseModel):
     """Membership response schema."""
 
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     user_id: int
     user_email: str
@@ -81,9 +81,6 @@ class MembershipSchema(BaseModel):
     role: str
     is_active: bool
     created_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 class MembershipCreateSchema(BaseModel):
@@ -105,6 +102,8 @@ class MembershipUpdateSchema(BaseModel):
 class InvitationSchema(BaseModel):
     """Invitation response schema."""
 
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     organization_id: UUID
     organization_name: str
@@ -114,9 +113,6 @@ class InvitationSchema(BaseModel):
     invited_by_email: str | None
     expires_at: datetime
     created_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 class InvitationCreateSchema(BaseModel):
@@ -136,6 +132,8 @@ class InvitationAcceptSchema(BaseModel):
 class OrganizationWithRoleSchema(BaseModel):
     """Organization with user's role."""
 
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     name: str
     slug: str
@@ -143,6 +141,3 @@ class OrganizationWithRoleSchema(BaseModel):
     plan: str
     role: str  # User's role in this org
     is_active: bool
-
-    class Config:
-        from_attributes = True

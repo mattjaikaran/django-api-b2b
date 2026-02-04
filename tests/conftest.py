@@ -2,6 +2,8 @@
 
 import pytest
 from django.contrib.auth import get_user_model
+from django.test import Client
+from ninja_jwt.tokens import RefreshToken
 
 User = get_user_model()
 
@@ -29,16 +31,12 @@ def admin_user(db):
 @pytest.fixture
 def api_client():
     """Create an API test client."""
-    from django.test import AsyncClient
-
-    return AsyncClient()
+    return Client()
 
 
 @pytest.fixture
 def authenticated_client(api_client, user):
     """Create an authenticated API client."""
-    from django_matt.auth import create_token_pair
-
-    tokens = create_token_pair(user)
-    api_client.defaults["HTTP_AUTHORIZATION"] = f"Bearer {tokens['access_token']}"
+    refresh = RefreshToken.for_user(user)
+    api_client.defaults["HTTP_AUTHORIZATION"] = f"Bearer {refresh.access_token}"
     return api_client

@@ -2,11 +2,13 @@
 
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class UserSchema(BaseModel):
     """User response schema."""
+
+    model_config = ConfigDict(from_attributes=True)
 
     id: int
     email: EmailStr
@@ -17,9 +19,6 @@ class UserSchema(BaseModel):
     bio: str = ""
     is_active: bool = True
     date_joined: datetime
-
-    class Config:
-        from_attributes = True
 
 
 class UserCreateSchema(BaseModel):

@@ -6,6 +6,8 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 """
 
 import os
+import sys
+from datetime import timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -45,8 +47,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # django-matt middleware
-    "django_matt.utils.errors.ErrorMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -82,7 +82,7 @@ DATABASES = {
     }
 }
 
-# Use SQLite for development if no PostgreSQL
+# Use SQLite for development if USE_SQLITE is explicitly set
 if os.getenv("USE_SQLITE", "False").lower() in ("true", "1", "yes"):
     DATABASES["default"] = {
         "ENGINE": "django.db.backends.sqlite3",
@@ -114,26 +114,15 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "users.User"
 
 # =============================================================================
-# django-matt configuration
+# Django Ninja JWT configuration
 # =============================================================================
 
-DJANGO_MATT = {
-    "API_TITLE": "My B2B API",
-    "API_VERSION": "1.0.0",
-    "API_DESCRIPTION": "A B2B multi-tenant API built with django-matt",
-    "DOCS_URL": "/docs",
-    "REDOC_URL": "/redoc",
-    "OPENAPI_URL": "/openapi.json",
-}
-
-# JWT Settings
-DJANGO_MATT_JWT = {
-    "ACCESS_TOKEN_LIFETIME": 60 * 15,  # 15 minutes
-    "REFRESH_TOKEN_LIFETIME": 60 * 60 * 24 * 7,  # 7 days
+NINJA_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "ALGORITHM": "HS256",
     "SIGNING_KEY": SECRET_KEY,
-    "AUTH_HEADER_NAME": "Authorization",
-    "AUTH_HEADER_PREFIX": "Bearer",
+    "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
 # =============================================================================

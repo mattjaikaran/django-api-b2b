@@ -1,5 +1,7 @@
 """Tests for authentication endpoints."""
 
+import json
+
 import pytest
 from django.contrib.auth import get_user_model
 
@@ -10,15 +12,19 @@ User = get_user_model()
 class TestAuthEndpoints:
     """Test authentication endpoints."""
 
-    async def test_register(self, api_client):
+    def test_register(self, api_client):
         """Test user registration."""
-        response = await api_client.post(
+        response = api_client.post(
             "/api/auth/register",
-            data={
-                "email": "newuser@example.com",
-                "username": "newuser",
-                "password": "securepass123",
-            },
+            data=json.dumps(
+                {
+                    "email": "newuser@example.com",
+                    "username": "newuser",
+                    "password": "securepass123",
+                    "first_name": "",
+                    "last_name": "",
+                }
+            ),
             content_type="application/json",
         )
         assert response.status_code == 200
@@ -26,14 +32,16 @@ class TestAuthEndpoints:
         assert data["email"] == "newuser@example.com"
         assert data["username"] == "newuser"
 
-    async def test_login(self, api_client, user):
+    def test_login(self, api_client, user):
         """Test user login."""
-        response = await api_client.post(
+        response = api_client.post(
             "/api/auth/login",
-            data={
-                "email": "test@example.com",
-                "password": "testpass123",
-            },
+            data=json.dumps(
+                {
+                    "email": "test@example.com",
+                    "password": "testpass123",
+                }
+            ),
             content_type="application/json",
         )
         assert response.status_code == 200
@@ -41,26 +49,40 @@ class TestAuthEndpoints:
         assert "access_token" in data
         assert "refresh_token" in data
 
-    async def test_login_invalid_credentials(self, api_client, user):
+    def test_login_invalid_credentials(self, api_client, user):
         """Test login with invalid credentials."""
-        response = await api_client.post(
+        response = api_client.post(
             "/api/auth/login",
-            data={
-                "email": "test@example.com",
-                "password": "wrongpassword",
-            },
+            data=json.dumps(
+                {
+                    "email": "test@example.com",
+                    "password": "wrongpassword",
+                }
+            ),
             content_type="application/json",
         )
         assert response.status_code == 401
 
-    async def test_me_authenticated(self, authenticated_client, user):
+    def test_me_authenticated(self, authenticated_client, user):
         """Test getting current user when authenticated."""
-        response = await authenticated_client.get("/api/auth/me")
+        response = authenticated_client.get("/api/auth/me")
         assert response.status_code == 200
         data = response.json()
         assert data["email"] == user.email
 
-    async def test_me_unauthenticated(self, api_client):
+    def test_me_unauthenticated(self, api_client):
         """Test getting current user when not authenticated."""
-        response = await api_client.get("/api/auth/me")
+        response = api_client.get("/api/auth/me")
         assert response.status_code == 401
+
+
+@pytest.mark.django_db
+class TestHealthEndpoint:
+    """Test health check endpoint."""
+
+    def test_health_check(self, api_client):
+        """Test health check returns healthy status."""
+        response = api_client.get("/api/health")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "healthy"

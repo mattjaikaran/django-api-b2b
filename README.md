@@ -1,14 +1,18 @@
-# Django API Starter
+# Django API B2B
 
-A minimal Django API template built with [django-matt](https://github.com/mattjaikaran/django-matt).
+A B2B multi-tenant Django API template built with Django Ninja.
 
 ## Features
 
-- Django 6.0+ with async support
+- Django 6.0+ with full async support
 - JWT authentication out of the box
+- Multi-tenant organization structure
+- Team management with role-based access
+- Membership system (owner, admin, member, viewer)
+- Invitation system with expiration
 - Pydantic schemas for request/response validation
 - OpenAPI documentation (Swagger & ReDoc)
-- PostgreSQL database (SQLite option for development)
+- PostgreSQL database
 - Docker & Docker Compose
 - uv package manager
 - Comprehensive testing setup
@@ -17,7 +21,7 @@ A minimal Django API template built with [django-matt](https://github.com/mattja
 
 ### Prerequisites
 
-- Python 3.14+
+- Python 3.12+ (3.13 recommended)
 - [uv](https://github.com/astral-sh/uv) package manager
 - PostgreSQL (or use SQLite for development)
 
@@ -25,7 +29,7 @@ A minimal Django API template built with [django-matt](https://github.com/mattja
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/django-api-starter.git myproject
+git clone https://github.com/yourusername/django-api-b2b.git myproject
 cd myproject
 ```
 
@@ -58,7 +62,14 @@ make superuser
 # Or: python manage.py createsuperuser
 ```
 
-7. Run the development server:
+7. (Optional) Seed sample data with organizations, teams, and users:
+```bash
+python manage.py seed_data
+# Or with more organizations: python manage.py seed_data --orgs 3
+# Clear and reseed: python manage.py seed_data --clear
+```
+
+8. Run the development server:
 ```bash
 make run
 # Or: python manage.py runserver
@@ -96,40 +107,160 @@ Once running, visit:
 | POST | `/api/auth/register` | Register a new user |
 | POST | `/api/auth/login` | Login and get tokens |
 | POST | `/api/auth/refresh` | Refresh access token |
+| POST | `/api/auth/logout` | Logout |
 | GET | `/api/auth/me` | Get current user |
 | PATCH | `/api/auth/me` | Update current user |
 | POST | `/api/auth/change-password` | Change password |
+
+### Organizations
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/organizations` | List user's organizations |
+| POST | `/api/organizations` | Create organization |
+| GET | `/api/organizations/{id}` | Get organization |
+| PATCH | `/api/organizations/{id}` | Update organization (admin) |
+| DELETE | `/api/organizations/{id}` | Delete organization (owner) |
+| GET | `/api/organizations/{id}/settings` | Get org settings (admin) |
+| PATCH | `/api/organizations/{id}/settings` | Update org settings (admin) |
+
+### Teams
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/organizations/{id}/teams` | List teams |
+| POST | `/api/organizations/{id}/teams` | Create team (admin) |
+| GET | `/api/organizations/{id}/teams/{tid}` | Get team with members |
+| PATCH | `/api/organizations/{id}/teams/{tid}` | Update team (admin) |
+| DELETE | `/api/organizations/{id}/teams/{tid}` | Delete team (admin) |
+| POST | `/api/organizations/{id}/teams/{tid}/members` | Add member to team |
+| DELETE | `/api/organizations/{id}/teams/{tid}/members/{mid}` | Remove from team |
+
+### Members
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/organizations/{id}/members` | List members |
+| GET | `/api/organizations/{id}/members/{mid}` | Get member details |
+| PATCH | `/api/organizations/{id}/members/{mid}` | Update member (admin) |
+| DELETE | `/api/organizations/{id}/members/{mid}` | Remove member (admin) |
+| POST | `/api/organizations/{id}/leave` | Leave organization |
+| POST | `/api/organizations/{id}/transfer-ownership/{mid}` | Transfer ownership |
+
+### Invitations
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/organizations/{id}/invitations` | List invitations (admin) |
+| POST | `/api/organizations/{id}/invitations` | Create invitation (admin) |
+| POST | `/api/organizations/{id}/invitations/bulk` | Bulk invite (admin) |
+| DELETE | `/api/organizations/{id}/invitations/{iid}` | Cancel invitation |
+| POST | `/api/organizations/{id}/invitations/{iid}/resend` | Resend invitation |
+| GET | `/api/invitations` | Get my invitations |
+| POST | `/api/invitations/{token}/accept` | Accept invitation |
+| POST | `/api/invitations/{token}/decline` | Decline invitation |
 
 ### Health
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/health` | Health check |
+| GET | `/api/ready` | Readiness check (with DB) |
+
+## Seed Data
+
+Quickly populate your database with sample B2B data for development:
+
+```bash
+# Create organizations, teams, and users
+python manage.py seed_data
+
+# Create more organizations
+python manage.py seed_data --orgs 3
+
+# Clear existing data and reseed
+python manage.py seed_data --clear
+```
+
+**Default Credentials:**
+- Admin (org owner): `admin@example.com` / `admin123`
+- Team members: `alice@example.com` / `password123`
+- Team members: `bob@example.com` / `password123`
+
+**Created Data:**
+- 2 organizations (Acme Corporation, Startup Labs)
+- Multiple teams per organization (Engineering, Product, Marketing, etc.)
+- Users with various roles (owner, admin, member, viewer)
 
 ## Project Structure
 
 ```
+django-api-b2b/
 ├── apps/
-│   ├── api.py              # API configuration
-│   ├── core/               # Shared models and utilities
-│   │   └── models.py       # Base models (TimestampMixin, etc.)
-│   └── users/              # User app
-│       ├── admin.py        # Admin configuration
-│       ├── controllers.py  # API controllers
-│       ├── models.py       # User model
-│       └── schemas.py      # Pydantic schemas
+│   ├── __init__.py
+│   ├── api.py                      # API initialization
+│   ├── core/
+│   │   ├── __init__.py
+│   │   ├── models.py               # Base models (TimestampMixin, etc.)
+│   │   └── management/
+│   │       └── commands/
+│   │           └── seed_data.py    # Database seeding command
+│   ├── users/
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── controllers/            # Auth endpoints
+│   │   ├── models/                 # User model
+│   │   └── schemas/                # Pydantic schemas
+│   └── organizations/
+│       ├── __init__.py
+│       ├── admin.py
+│       ├── apps.py
+│       ├── controllers/            # Org, Team, Member, Invitation endpoints
+│       ├── middleware.py           # TenantContextMiddleware
+│       ├── models/                 # Organization, Team, Membership, Invitation
+│       └── schemas/                # Pydantic schemas
 ├── config/
-│   ├── settings.py         # Django settings
-│   ├── urls.py             # URL configuration
-│   ├── wsgi.py             # WSGI config
-│   └── asgi.py             # ASGI config
-├── tests/                  # Test files
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── settings_test.py
+│   ├── urls.py
+│   ├── wsgi.py
+│   └── asgi.py
+├── tests/
+│   ├── __init__.py
+│   ├── conftest.py
+│   ├── test_auth.py
+│   └── test_organizations.py
+├── .env.example
 ├── Dockerfile
 ├── docker-compose.yml
 ├── Makefile
 ├── pyproject.toml
-└── manage.py
+├── manage.py
+├── .gitignore
+└── README.md
 ```
+
+## Roles & Permissions
+
+| Role | Create Team | Manage Members | Manage Settings | Delete Org |
+|------|-------------|----------------|-----------------|------------|
+| Owner | Yes | Yes | Yes | Yes |
+| Admin | Yes | Yes | Yes | No |
+| Member | No | No | No | No |
+| Viewer | No | No | No | No |
+
+## Multi-tenancy
+
+### Using Tenant Context
+
+Set organization context via headers:
+- `X-Organization-ID`: UUID of the organization
+- `X-Organization-Slug`: Slug of the organization
+
+Or via query parameter:
+- `?org_id=<uuid>`
 
 ## Development
 

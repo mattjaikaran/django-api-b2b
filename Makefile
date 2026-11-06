@@ -3,7 +3,7 @@
 # =============================================================================
 # Run `make help` to see all available commands
 
-.PHONY: help install dev run test lint format migrate shell docker-up docker-down clean check pre-commit
+.PHONY: help install dev run test lint format migrate shell docker-up docker-down clean check pre-commit migrations-check migrations-renumber
 
 # Default target
 .DEFAULT_GOAL := help
@@ -34,6 +34,8 @@ help:
 	@echo "$(GREEN)Database:$(RESET)"
 	@echo "  make migrate        Run database migrations"
 	@echo "  make migrations     Create new migrations"
+	@echo "  make migrations-check  Leaf, lint and no-merge checks"
+	@echo "  make migrations-renumber  Fix a migration conflict (ARGS=--apply)"
 	@echo "  make superuser      Create a superuser"
 	@echo ""
 	@echo "$(GREEN)Testing:$(RESET)"
@@ -94,6 +96,14 @@ migrations:
 
 migrate:
 	uv run python manage.py migrate
+
+# Migrations are linearized, never merged: never `makemigrations --merge`.
+migrations-check:
+	python3 scripts/db/check_migrations.py
+
+# Dry run; `make migrations-renumber ARGS=--apply` writes the renames.
+migrations-renumber:
+	python3 scripts/db/renumber_migrations.py $(ARGS)
 
 superuser:
 	uv run python manage.py createsuperuser

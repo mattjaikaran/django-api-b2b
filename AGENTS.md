@@ -46,7 +46,7 @@ services.
 | Run the pre-commit hooks | `make pre-commit` |
 
 The test suite uses in-memory SQLite (`config/settings_test.py`), so it needs no
-database. CI runs the same suite against PostgreSQL with `config/settings_ci`
+database. CI runs the same suite against PostgreSQL with `config/settings_ci.py`
 (see [.github/workflows/ci.yml](.github/workflows/ci.yml)).
 
 `make migrate` and `make run` need a database. By default it is PostgreSQL on
@@ -55,8 +55,8 @@ database. CI runs the same suite against PostgreSQL with `config/settings_ci`
 `db.sqlite3`.
 
 `make lint` runs ruff and then mypy. Ruff must pass. Mypy is advisory in CI
-(`continue-on-error`) and currently reports pre-existing errors in
-`apps/core/management/commands/seed_data.py`; do not add new ones.
+(`continue-on-error`) but `make lint` fails on its findings locally, so keep
+`apps/` free of type errors.
 
 ## Code standards
 

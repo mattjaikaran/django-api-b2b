@@ -1,5 +1,7 @@
 """Seed database with sample B2B data for development."""
 
+from typing import Any
+
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.utils.text import slugify
@@ -93,7 +95,7 @@ class Command(BaseCommand):
 
     def create_organizations_with_teams(self, admin, users, num_orgs: int):
         """Create organizations with teams and members."""
-        org_data = [
+        org_data: list[dict[str, Any]] = [
             {
                 "name": "Acme Corporation",
                 "description": "A leading technology company specializing in innovative solutions.",
@@ -133,8 +135,6 @@ class Command(BaseCommand):
                     user=admin,
                     organization=org,
                     role=MembershipRole.OWNER,
-                    job_title="CEO",
-                    department="Executive",
                 )
 
                 # Create teams
@@ -164,8 +164,6 @@ class Command(BaseCommand):
                         user=user,
                         organization=org,
                         role=role,
-                        job_title=self._get_job_title(role),
-                        department=teams[0].name if teams else "General",
                     )
                     # Add to first team
                     if teams:
@@ -173,16 +171,6 @@ class Command(BaseCommand):
                     self.stdout.write(f"  Added {user.email} as {role}")
             else:
                 self.stdout.write(f"Organization {org.name} already exists")
-
-    def _get_job_title(self, role: str) -> str:
-        """Get a job title based on role."""
-        titles = {
-            MembershipRole.OWNER: "Founder",
-            MembershipRole.ADMIN: "Team Lead",
-            MembershipRole.MEMBER: "Engineer",
-            MembershipRole.VIEWER: "Analyst",
-        }
-        return titles.get(role, "Employee")
 
     def print_summary(self):
         """Print a summary of created data."""
